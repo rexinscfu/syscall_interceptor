@@ -7,13 +7,13 @@ include '../include/syscall_defs.inc'
 
 section '.text' executable
 
-extern hook_init
-extern hook_syscall
-extern unhook_syscall
-extern unhook_all
-extern log_init
-extern log_write
-extern log_close
+extern _log_init
+extern _log_write
+extern _log_close
+extern _hook_init
+extern _hook_syscall
+extern _unhook_syscall
+extern _unhook_all
 
 ; Custom write syscall handler
 ; This will be called instead of the original write syscall
@@ -31,7 +31,7 @@ custom_write_handler:
     
     ; Log the write syscall
     lea rdi, [write_msg]
-    call log_write
+    call _log_write
     
     ; Restore registers
     pop r11
@@ -55,21 +55,21 @@ custom_write_handler:
 ; Entry point
 _start:
     ; Initialize logger
-    call log_init
+    call _log_init
     
     ; Log start message
     lea rdi, [start_msg]
-    call log_write
+    call _log_write
     
     ; Initialize syscall hooking
-    call hook_init
+    call _hook_init
     test rax, rax
     jnz .error
     
     ; Hook write syscall
     mov rdi, SYS_write
     lea rsi, [custom_write_handler]
-    call hook_syscall
+    call _hook_syscall
     test rax, rax
     jnz .error
     
@@ -82,17 +82,17 @@ _start:
     
     ; Unhook write syscall
     mov rdi, SYS_write
-    call unhook_syscall
+    call _unhook_syscall
     
     ; Unhook all syscalls
-    call unhook_all
+    call _unhook_all
     
     ; Log end message
     lea rdi, [end_msg]
-    call log_write
+    call _log_write
     
     ; Close logger
-    call log_close
+    call _log_close
     
     ; Exit
     mov rax, 60         ; sys_exit
@@ -102,10 +102,10 @@ _start:
 .error:
     ; Log error message
     lea rdi, [error_msg]
-    call log_write
+    call _log_write
     
     ; Close logger
-    call log_close
+    call _log_close
     
     ; Exit with error
     mov rax, 60         ; sys_exit

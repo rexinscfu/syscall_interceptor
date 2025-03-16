@@ -5,9 +5,9 @@ format ELF64
 
 section '.text' executable
 
-public log_init
-public log_write
-public log_close
+public _log_init
+public _log_write
+public _log_close
 
 ; Constants
 LOG_BUFFER_SIZE equ 4096
@@ -25,7 +25,7 @@ log_file_size dd 0
 ; Log initialization
 ; Input: none
 ; Output: eax = 0 on success, error code otherwise
-log_init:
+_log_init:
     push rbx
     push rcx
     push rdx
@@ -81,7 +81,7 @@ log_init:
 ; Write to log
 ; Input: rdi = pointer to null-terminated string
 ; Output: eax = 0 on success, error code otherwise
-log_write:
+_log_write:
     push rbx
     push rcx
     push rdx
@@ -182,7 +182,7 @@ log_write:
 ; Close log
 ; Input: none
 ; Output: eax = 0 on success, error code otherwise
-log_close:
+_log_close:
     push rbx
     push rcx
     push rdx

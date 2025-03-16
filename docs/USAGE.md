@@ -26,107 +26,93 @@ This will produce `build\output\syscall_interceptor.lib`, which you can link wit
 
 ## API Reference
 
-### Common Functions
+The library provides both a C API and direct assembly functions.
 
-#### `log_init`
+### C API
 
-Initializes the logging system.
+Include the header file in your C code:
 
-**Input:** None
-**Output:** 0 on success, error code otherwise
+```c
+#include "syscall_interceptor.h"
+```
 
-#### `log_write`
+#### Common Functions
 
-Writes a message to the log.
+```c
+int log_init(void);
+int log_write(const char* message);
+int log_close(void);
+```
 
-**Input:** Pointer to null-terminated string
-**Output:** 0 on success, error code otherwise
+#### Linux-specific Functions
 
-#### `log_close`
+```c
+int hook_init(void);
+int hook_syscall(int syscall_number, syscall_handler_t handler);
+int unhook_syscall(int syscall_number);
+int unhook_all(void);
+const char* get_syscall_name(int syscall_number);
+int get_syscall_number(const char* name);
+```
 
-Closes the logging system.
+#### Windows-specific Functions
 
-**Input:** None
-**Output:** 0 on success, error code otherwise
+```c
+int hook_init(void);
+int hook_syscall(const char* syscall_name, syscall_handler_t handler);
+int unhook_syscall(const char* syscall_name);
+int unhook_all(void);
+const char* get_syscall_name(int syscall_number);
+int get_syscall_number(const char* name);
+```
 
-### Linux-specific Functions
+### Assembly API
 
-#### `hook_init`
+For direct assembly usage, the functions have an underscore prefix:
 
-Initializes the syscall hooking system.
-
-**Input:** None
-**Output:** 0 on success, error code otherwise
-
-#### `hook_syscall`
-
-Hooks a syscall.
-
-**Input:** 
-- Syscall number
-- New handler address
-
-**Output:** 0 on success, error code otherwise
-
-#### `unhook_syscall`
-
-Unhooks a syscall.
-
-**Input:** Syscall number
-**Output:** 0 on success, error code otherwise
-
-#### `unhook_all`
-
-Unhooks all syscalls.
-
-**Input:** None
-**Output:** 0 on success, error code otherwise
-
-### Windows-specific Functions
-
-#### `hook_init`
-
-Initializes the syscall hooking system.
-
-**Input:** None
-**Output:** 0 on success, error code otherwise
-
-#### `hook_syscall`
-
-Hooks a syscall.
-
-**Input:** 
-- Syscall name
-- New handler address
-
-**Output:** 0 on success, error code otherwise
-
-#### `unhook_syscall`
-
-Unhooks a syscall.
-
-**Input:** Syscall name
-**Output:** 0 on success, error code otherwise
-
-#### `unhook_all`
-
-Unhooks all syscalls.
-
-**Input:** None
-**Output:** 0 on success, error code otherwise
+```
+_log_init
+_log_write
+_log_close
+_hook_init
+_hook_syscall
+_unhook_syscall
+_unhook_all
+_get_syscall_name
+_get_syscall_number
+```
 
 ## Example Usage
 
-See the `examples` directory for complete examples of using the library on both Linux and Windows.
+See the `examples` directory for complete examples of using the library on both Linux and Windows, in both C and assembly.
 
-### Basic Usage Pattern
+### Basic Usage Pattern (C)
 
-1. Initialize the logging system
-2. Initialize the syscall hooking system
-3. Hook the desired syscalls
-4. Use the system normally - your hooks will be called
-5. Unhook syscalls when done
-6. Close the logging system
+```c
+#include "syscall_interceptor.h"
+
+void custom_syscall_handler(void) {
+    log_write("Syscall intercepted");
+    // Your custom handling code here
+}
+
+int main() {
+    log_init();
+    hook_init();
+    
+    // Hook a syscall
+    hook_syscall(SYSCALL_NUMBER, custom_syscall_handler);
+    
+    // Your application code here
+    
+    // Unhook when done
+    unhook_syscall(SYSCALL_NUMBER);
+    unhook_all();
+    log_close();
+    
+    return 0;
+}
+```
 
 ## Limitations
 

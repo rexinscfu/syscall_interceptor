@@ -7,12 +7,12 @@ include '../include/syscall_defs.inc'
 
 section '.text' executable
 
-public hook_init
-public hook_syscall
-public unhook_syscall
-public unhook_all
+public _hook_init
+public _hook_syscall
+public _unhook_syscall
+public _unhook_all
 
-extern log_write
+extern _log_write
 
 ; Constants
 MAX_HOOKS equ 64
@@ -28,7 +28,7 @@ hook_active db 0
 ; Hook initialization
 ; Input: none
 ; Output: eax = 0 on success, error code otherwise
-hook_init:
+_hook_init:
     push rbx
     push rcx
     push rdx
@@ -53,7 +53,7 @@ hook_init:
     
     ; Log initialization
     lea rdi, [init_msg]
-    call log_write
+    call _log_write
     
     xor rax, rax        ; Return success
     jmp .done
@@ -88,7 +88,7 @@ find_syscall_table:
     
     ; Log the found address
     lea rdi, [table_found_msg]
-    call log_write
+    call _log_write
     
     pop rdx
     pop rcx
@@ -98,7 +98,7 @@ find_syscall_table:
 ; Hook a syscall
 ; Input: rdi = syscall number, rsi = new handler address
 ; Output: eax = 0 on success, error code otherwise
-hook_syscall:
+_hook_syscall:
     push rbx
     push rcx
     push rdx
@@ -131,7 +131,7 @@ hook_syscall:
     push rdi
     push rsi
     lea rdi, [hook_msg]
-    call log_write
+    call _log_write
     pop rsi
     pop rdi
     
@@ -158,7 +158,7 @@ hook_syscall:
 ; Unhook a syscall
 ; Input: rdi = syscall number
 ; Output: eax = 0 on success, error code otherwise
-unhook_syscall:
+_unhook_syscall:
     push rbx
     push rcx
     push rdx
@@ -194,7 +194,7 @@ unhook_syscall:
     ; Log the unhook
     push rdi
     lea rdi, [unhook_msg]
-    call log_write
+    call _log_write
     pop rdi
     
     xor rax, rax        ; Return success
@@ -220,7 +220,7 @@ unhook_syscall:
 ; Unhook all syscalls
 ; Input: none
 ; Output: eax = 0 on success, error code otherwise
-unhook_all:
+_unhook_all:
     push rbx
     push rcx
     push rdx
@@ -242,7 +242,7 @@ unhook_all:
     
     ; Log the unhook all
     lea rdi, [unhook_all_msg]
-    call log_write
+    call _log_write
     
     xor rax, rax        ; Return success
     jmp .done

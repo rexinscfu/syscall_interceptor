@@ -7,13 +7,13 @@ include '../include/syscall_defs.inc'
 
 section '.text' code readable executable
 
-extern hook_init
-extern hook_syscall
-extern unhook_syscall
-extern unhook_all
-extern log_init
-extern log_write
-extern log_close
+extern _log_init
+extern _log_write
+extern _log_close
+extern _hook_init
+extern _hook_syscall
+extern _unhook_syscall
+extern _unhook_all
 
 ; Import necessary Windows functions
 section '.idata' import data readable writeable
@@ -43,7 +43,7 @@ custom_NtWriteFile_handler:
     
     ; Log the NtWriteFile syscall
     lea rcx, [write_msg]
-    call log_write
+    call _log_write
     
     ; Restore registers
     pop r11
@@ -64,21 +64,21 @@ custom_NtWriteFile_handler:
 ; Entry point
 main:
     ; Initialize logger
-    call log_init
+    call _log_init
     
     ; Log start message
     lea rcx, [start_msg]
-    call log_write
+    call _log_write
     
     ; Initialize syscall hooking
-    call hook_init
+    call _hook_init
     test rax, rax
     jnz .error
     
     ; Hook NtWriteFile syscall
     lea rcx, [NtWriteFile_name]
     lea rdx, [custom_NtWriteFile_handler]
-    call hook_syscall
+    call _hook_syscall
     test rax, rax
     jnz .error
     
@@ -96,17 +96,17 @@ main:
     
     ; Unhook NtWriteFile syscall
     lea rcx, [NtWriteFile_name]
-    call unhook_syscall
+    call _unhook_syscall
     
     ; Unhook all syscalls
-    call unhook_all
+    call _unhook_all
     
     ; Log end message
     lea rcx, [end_msg]
-    call log_write
+    call _log_write
     
     ; Close logger
-    call log_close
+    call _log_close
     
     ; Exit
     xor ecx, ecx        ; status = 0
@@ -115,10 +115,10 @@ main:
 .error:
     ; Log error message
     lea rcx, [error_msg]
-    call log_write
+    call _log_write
     
     ; Close logger
-    call log_close
+    call _log_close
     
     ; Exit with error
     mov ecx, 1          ; status = 1

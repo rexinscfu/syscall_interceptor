@@ -7,13 +7,13 @@ include '../include/syscall_defs.inc'
 
 section '.text' code readable executable
 
-public get_syscall_name
-public get_syscall_number
+public _get_syscall_name
+public _get_syscall_number
 
 ; Get syscall name by number
 ; Input: rcx = syscall number
 ; Output: rax = pointer to syscall name or 0 if not found
-get_syscall_name:
+_get_syscall_name:
     push rbx
     push rcx
     
@@ -41,7 +41,7 @@ get_syscall_name:
 ; Get syscall number by name
 ; Input: rcx = pointer to syscall name
 ; Output: rax = syscall number or -1 if not found
-get_syscall_number:
+_get_syscall_number:
     push rbx
     push rcx
     push rdx
